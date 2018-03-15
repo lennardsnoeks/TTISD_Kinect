@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using WpfApplication1;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,11 +10,13 @@ using System.Windows.Media.Media3D;
 
 //shared with students
 
-namespace Microsoft.Samples.Kinect.ControlsBasics
+namespace WpfApplication1
 {
-    class CalibrationClass
+    class KinectClass
     {
         private KinectSensor m_kinectSensor = null;
+        private GameClass m_game = null;
+        private MainWindow m_window = null;
 
         private List<Point> m_calibPoints = new List<Point>(); //2d calibration points
         private List<SkeletonPoint> m_skeletonCalibPoints = new List<SkeletonPoint>(); //3d skeleton points
@@ -23,9 +26,10 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
 
         private Skeleton[] m_lastSkeletons;
 
-        public CalibrationClass()
+        public KinectClass(GameClass game)
         {
-            /*m_kinectSensor = KinectSensor.KinectSensors[0];
+            m_game = game;
+            m_kinectSensor = KinectSensor.KinectSensors[0];
 
             if (null != m_kinectSensor)
             {
@@ -38,7 +42,7 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
                     m_kinectSensor.SkeletonStream.Enable();
 
                     // Add an event handler to be called whenever there is new color frame data
-                    m_kinectSensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
+                    m_kinectSensor.SkeletonFrameReady += this.SensorCalibrationSkeletonFrameReady;
                 }
                 catch (IOException e)
                 {
@@ -49,11 +53,15 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
             m_calibPoints.Add(new Point(0, 0));
             m_calibPoints.Add(new Point(720, 0));
             m_calibPoints.Add(new Point(720, 720));
-            m_calibPoints.Add(new Point(0, 720));*/
+            m_calibPoints.Add(new Point(0, 720));
+
+            m_window = getMainWindow();
         }
 
-        public void setSkeletonCalibPoint()
+        public bool setSkeletonCalibPoint()
         {
+            bool skeletonFound = false;
+
             if (m_lastSkeletons.Length != 0)
             {
                 foreach (Skeleton skel in m_lastSkeletons)
@@ -61,14 +69,20 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         m_skeletonCalibPoints.Add(skel.Position);
+                        skeletonFound = true;
                     }
+                }
+
+                if(skeletonFound)
+                {
+                    this.calibrate();
                 }
             }
 
-            this.calibrate();
+            return skeletonFound;
         }
 
-        private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        private void SensorCalibrationSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             using (SkeletonFrame frame = e.OpenSkeletonFrame())
             {
@@ -80,12 +94,62 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
             }
         }
 
+        private void SensorGameSkeletonFrameReady(object sensor, SkeletonFrameReadyEventArgs e)
+        {
+            bool foundSkeleton = false;
+
+            using (SkeletonFrame frame = e.OpenSkeletonFrame())
+            {
+                if (frame != null)
+                {
+                    Skeleton[] skeletonFrames = new Skeleton[frame.SkeletonArrayLength];
+                    frame.CopySkeletonDataTo(skeletonFrames);
+
+                    if (skeletonFrames.Length != 0)
+                    {
+                        foreach (Skeleton skel in skeletonFrames)
+                        {
+                            if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                            {
+                                foundSkeleton = true;
+
+                                Point tResult = kinectToProjectionPoint(skel.Position);
+                                m_window.moveEllipse(tResult);
+                            }
+                        }
+
+                        if(!foundSkeleton)
+                        {
+                            m_window.hideEllipse();
+                        }
+                    }
+                }
+            }
+        }
+
+        private MainWindow getMainWindow()
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(MainWindow))
+                {
+                    return (window as MainWindow);
+                }
+            }
+
+            return null;
+        }
+
+        public void changeSensorEventFunction()
+        {
+            m_kinectSensor.SkeletonFrameReady -= this.SensorCalibrationSkeletonFrameReady;
+            m_kinectSensor.SkeletonFrameReady += this.SensorGameSkeletonFrameReady;
+        }
+
         private void calibrate()
         {
             if (m_skeletonCalibPoints.Count == m_calibPoints.Count)
             {
-                Console.WriteLine("TYOOYOYO");
-
                 //seketon 3D positions --> 3d positions in depth camera
                 Point3D p0 = conertSkeletonPointToDepthPoint(m_skeletonCalibPoints[0]);
                 Point3D p1 = conertSkeletonPointToDepthPoint(m_skeletonCalibPoints[1]);
@@ -124,7 +188,7 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
                 dest[3] = new System.Drawing.PointF((float)m_calibPoints[3].X, (float)m_calibPoints[3].Y);
 
                 Emgu.CV.Mat transform = Emgu.CV.CvInvoke.GetPerspectiveTransform(src, dest);
-
+               
                 m_transform = new Emgu.CV.Matrix<double>(transform.Rows, transform.Cols, transform.NumberOfChannels);
                 transform.CopyTo(m_transform);
 

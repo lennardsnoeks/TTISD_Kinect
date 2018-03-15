@@ -1,5 +1,4 @@
-﻿using Microsoft.Samples.Kinect.ControlsBasics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfApplication1;
 
 namespace WpfApplication1
 {
@@ -21,7 +21,8 @@ namespace WpfApplication1
     /// </summary>
     public partial class MainWindow : Window
     {
-        private CalibrationClass m_calibration;
+        private KinectClass m_kinect = null;
+        private GameClass m_game = null;
 
         private int m_clicked = 0;
 
@@ -29,7 +30,8 @@ namespace WpfApplication1
         {
             InitializeComponent();
 
-            m_calibration = new CalibrationClass();
+            m_game = new GameClass();
+            m_kinect = new KinectClass(m_game);
 
             Line line1 = new Line();
             line1.Stroke = System.Windows.Media.Brushes.Black;
@@ -77,31 +79,35 @@ namespace WpfApplication1
 
         private void StartCalibration(object sender, RoutedEventArgs e)
         {
-            //m_calibration.setSkeletonCalibPoint();
+            bool skeletonFound = m_kinect.setSkeletonCalibPoint();
 
-            switch (m_clicked)
+            if(skeletonFound)
             {
-                case 0:
-                    topleft.Visibility = Visibility.Hidden;
-                    topright.Visibility = Visibility.Visible;
-                    break;
-                case 1:
-                    topright.Visibility = Visibility.Hidden;
-                    bottumright.Visibility = Visibility.Visible;
-                    break;
-                case 2:
-                    bottumright.Visibility = Visibility.Hidden;
-                    bottumleft.Visibility = Visibility.Visible;
-                    break;
-            }
+                switch (m_clicked)
+                {
+                    case 0:
+                        topleft.Visibility = Visibility.Hidden;
+                        topright.Visibility = Visibility.Visible;
+                        break;
+                    case 1:
+                        topright.Visibility = Visibility.Hidden;
+                        bottumright.Visibility = Visibility.Visible;
+                        break;
+                    case 2:
+                        bottumright.Visibility = Visibility.Hidden;
+                        bottumleft.Visibility = Visibility.Visible;
+                        break;
+                }
 
-            if (m_clicked == 3)
-            {
-                Calibrate.Visibility = Visibility.Hidden;
-                StartAfterCalibrate.Visibility = Visibility.Visible;
-            }
+                if (m_clicked == 3)
+                {
+                    Calibrate.Visibility = Visibility.Hidden;
+                    StartAfterCalibrate.Visibility = Visibility.Visible;
+                    bottumleft.Visibility = Visibility.Hidden;
+                }
 
-            m_clicked++;
+                m_clicked++;
+            }
         }
 
         private void StartButton(object sender, RoutedEventArgs e)
@@ -109,6 +115,19 @@ namespace WpfApplication1
             start.Visibility = Visibility.Hidden;
             calibration.Visibility = Visibility.Hidden;
             game.Visibility = Visibility.Visible;
+
+            m_kinect.changeSensorEventFunction();
+        }
+
+        public void moveEllipse(Point point)
+        {
+            currentPosition.Visibility = Visibility.Visible;
+            currentPosition.Margin = new Thickness(point.X - (currentPosition.Width / 2), point.Y - (currentPosition.Height / 2), 0, 0);
+        }
+
+        public void hideEllipse()
+        {
+            currentPosition.Visibility = Visibility.Hidden;
         }
     }
 }

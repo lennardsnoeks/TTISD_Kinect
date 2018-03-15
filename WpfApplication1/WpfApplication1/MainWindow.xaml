@@ -9,8 +9,7 @@
 
     <Grid>
         <StackPanel Name="start" Orientation="Vertical" VerticalAlignment="Center">
-            <Button x:Name="startbutton" Click="StartButton" Width="64" Height="30" Margin="5">Play Game</Button>
-            <Button x:Name="calibrate" Click="InitiateCalibration" Width="64" Height="30" Margin="5">Calibrate</Button>
+            <Button x:Name="calibrate" Click="InitiateCalibration" Width="100" Height="30" Margin="5">Start Calibration</Button>
         </StackPanel>
         <Grid Name="calibration" Visibility="Hidden">
             <Ellipse Name="topleft" Margin="-600,-600,0,0" Fill="Yellow" Height="75" Width="75" StrokeThickness="2" Stroke="Black"/>
@@ -20,7 +19,8 @@
             <Button x:Name="Calibrate" Click="StartCalibration" Width="64" Height="30">Calibrate</Button>
             <Button x:Name="StartAfterCalibrate" Click="StartButton" Width="64" Height="30" Visibility="Hidden">Play Game</Button>
         </Grid>
-        <Canvas Name="game" Visibility="Hidden" Width="720" Height="720">
+        <Canvas x:Name="game" Visibility="Hidden" Width="720" Height="720">
+            <Ellipse x:Name="currentPosition" Visibility="Hidden" Width="100" Height="100" Fill="LightBlue" Stroke="Black"></Ellipse>
         </Canvas>
     </Grid>
 
