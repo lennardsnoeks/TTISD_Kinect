@@ -25,7 +25,7 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
 
         public CalibrationClass()
         {
-            m_kinectSensor = KinectSensor.KinectSensors[0];
+            /*m_kinectSensor = KinectSensor.KinectSensors[0];
 
             if (null != m_kinectSensor)
             {
@@ -49,7 +49,7 @@ namespace Microsoft.Samples.Kinect.ControlsBasics
             m_calibPoints.Add(new Point(0, 0));
             m_calibPoints.Add(new Point(720, 0));
             m_calibPoints.Add(new Point(720, 720));
-            m_calibPoints.Add(new Point(0, 720));
+            m_calibPoints.Add(new Point(0, 720));*/
         }
 
         public void setSkeletonCalibPoint()
