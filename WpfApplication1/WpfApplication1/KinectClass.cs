@@ -26,10 +26,11 @@ namespace WpfApplication1
 
         private Skeleton[] m_lastSkeletons;
 
-        public KinectClass(GameClass game)
+        public KinectClass(GameClass game, MainWindow window)
         {
             m_game = game;
             m_kinectSensor = KinectSensor.KinectSensors[0];
+            m_window = window;
 
             if (null != m_kinectSensor)
             {
@@ -54,8 +55,6 @@ namespace WpfApplication1
             m_calibPoints.Add(new Point(720, 0));
             m_calibPoints.Add(new Point(720, 720));
             m_calibPoints.Add(new Point(0, 720));
-
-            m_window = getMainWindow();
         }
 
         public bool setSkeletonCalibPoint()
@@ -115,6 +114,13 @@ namespace WpfApplication1
 
                                 Point tResult = kinectToProjectionPoint(skel.Position);
                                 m_window.moveEllipse(tResult);
+
+                                Gestures gesture = processGesture(skel.Joints);
+                                if(gesture != Gestures.NONE)
+                                {
+                                    Point gridPosition = determineGridPosition(tResult);
+                                    m_game.placeMove(gesture, gridPosition);
+                                }
                             }
                         }
 
@@ -127,17 +133,60 @@ namespace WpfApplication1
             }
         }
 
-        private MainWindow getMainWindow()
+        private Point determineGridPosition(Point position2D)
         {
-            foreach (Window window in Application.Current.Windows)
-            {
-                if (window.GetType() == typeof(MainWindow))
-                {
-                    return (window as MainWindow);
-                }
-            }
+            Point gridPosition = new Point();
+            double boxSize = m_window.Width / 3;
 
-            return null;
+            gridPosition.X = getSingleAxisGridPosition(position2D.X, boxSize);
+            gridPosition.Y = getSingleAxisGridPosition(position2D.Y, boxSize);
+
+            return gridPosition;
+        }
+
+        private int getSingleAxisGridPosition(double position, double boxSize)
+        {
+            if (position < boxSize)
+            {
+                return 0;
+            }
+            else if (position > boxSize && position < boxSize * 2)
+            {
+                return 1;
+            }
+            else
+            {
+                return 2;
+            }
+        }
+
+        private Gestures processGesture(JointCollection joints)
+        {
+            Joint leftHand = joints[JointType.HandLeft];
+            Joint leftElbow = joints[JointType.ElbowLeft];
+            Joint rightHand = joints[JointType.HandRight];
+            Joint rightElbow = joints[JointType.ElbowRight];
+            Joint shoulderCenter = joints[JointType.ShoulderCenter];
+            Joint shoulderLeft = joints[JointType.ShoulderLeft];
+            Joint shoulderRight = joints[JointType.ShoulderRight];
+
+            if(leftHand.Position.X > rightHand.Position.X
+                && leftElbow.Position.X < rightElbow.Position.X
+                && leftElbow.Position.Y < rightHand.Position.Y
+                && leftHand.Position.Y > rightElbow.Position.Y)
+            {
+                return Gestures.X;
+            } else if(leftHand.Position.Y > shoulderCenter.Position.Y
+                && rightHand.Position.Y > shoulderCenter.Position.Y
+                && leftHand.Position.X < rightHand.Position.X
+                && leftElbow.Position.X < shoulderLeft.Position.X
+                && rightElbow.Position.X > shoulderRight.Position.X)
+            {
+                return Gestures.O;
+            } else
+            {
+                return Gestures.NONE;
+            }
         }
 
         public void changeSensorEventFunction()
@@ -222,5 +271,20 @@ namespace WpfApplication1
 
             return new Point(resultPoint[0].X, resultPoint[0].Y);
         }
+
+        /*
+        private MainWindow getMainWindow()
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(MainWindow))
+                {
+                    return (window as MainWindow);
+                }
+            }
+
+            return null;
+        }
+        */
     }
 }

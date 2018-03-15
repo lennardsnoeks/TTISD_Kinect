@@ -30,8 +30,8 @@ namespace WpfApplication1
         {
             InitializeComponent();
 
-            m_game = new GameClass();
-            m_kinect = new KinectClass(m_game);
+            m_game = new GameClass(this);
+            m_kinect = new KinectClass(m_game, this);
 
             Line line1 = new Line();
             line1.Stroke = System.Windows.Media.Brushes.Black;
@@ -128,6 +128,53 @@ namespace WpfApplication1
         public void hideEllipse()
         {
             currentPosition.Visibility = Visibility.Hidden;
+        }
+
+        public void drawX(Point position)
+        {
+            double boxSize = this.Width / 3;
+
+            double positionX = (position.X * boxSize) + (boxSize / 2);
+            double positionY = (position.Y * boxSize) + (boxSize / 2);
+
+            Line line1 = new Line();
+            line1.Stroke = System.Windows.Media.Brushes.Black;
+            line1.X1 = positionX - 80;
+            line1.X2 = positionX + 80;
+            line1.Y1 = positionY - 80;
+            line1.Y2 = positionY + 80;
+            line1.StrokeThickness = 10;
+
+            Line line2 = new Line();
+            line2.Stroke = System.Windows.Media.Brushes.Black;
+            line2.X1 = positionX - 80;
+            line2.X2 = positionX + 80;
+            line2.Y1 = positionY + 80;
+            line2.Y2 = positionY - 80;
+            line2.StrokeThickness = 10;
+
+            game.Children.Add(line1);
+            game.Children.Add(line2);
+        }
+
+        public void drawO(Point position)
+        {
+            double boxSize = this.Width / 3;
+
+            double positionX = (position.X * boxSize) + 25;
+            double positionY = (position.Y * boxSize) + 25;
+
+            SolidColorBrush blackBrush = new SolidColorBrush();
+            blackBrush.Color = Colors.Black;
+
+            Ellipse ellipse = new Ellipse();
+            ellipse.Width = boxSize - 50;
+            ellipse.Height = boxSize - 50;
+            ellipse.Stroke = blackBrush;
+            ellipse.StrokeThickness = 10;
+            ellipse.Margin = new Thickness(positionX, positionY, 0, 0);
+
+            game.Children.Add(ellipse);
         }
     }
 }
