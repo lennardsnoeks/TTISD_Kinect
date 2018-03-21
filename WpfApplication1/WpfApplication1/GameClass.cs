@@ -131,7 +131,6 @@ namespace WpfApplication1
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     if (dresult == DialogResult.OK)
                     {
-                        // Do something
                         Reset();
                     }
                 }
@@ -142,7 +141,6 @@ namespace WpfApplication1
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     if (dresult == DialogResult.OK)
                     {
-                        // Do something
                         Reset();
                     }
                 }
@@ -155,7 +153,6 @@ namespace WpfApplication1
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                         if (dresult == DialogResult.OK)
                         {
-                            // Do something
                             Reset();
                         }
                     }
