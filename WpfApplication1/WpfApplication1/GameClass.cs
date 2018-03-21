@@ -19,18 +19,19 @@ namespace WpfApplication1
     {
         private MainWindow m_window = null;
         private const int BOARD_SIZE = 3;
-
-        int[,] matrix = new int[BOARD_SIZE, BOARD_SIZE];
+        private int[,] m_matrix;
 
         public GameClass(MainWindow window)
         {
             m_window = window;
 
+            m_matrix = new int[BOARD_SIZE, BOARD_SIZE];
+
             for (int i = 0; i < BOARD_SIZE; i++)
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    matrix[i, j] = -1;
+                    m_matrix[i, j] = -1;
                 }
             }
         }
@@ -41,7 +42,7 @@ namespace WpfApplication1
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    matrix[i, j] = -1;
+                    m_matrix[i, j] = -1;
                 }
             }
         }
@@ -51,9 +52,9 @@ namespace WpfApplication1
             int x = (int)position.X;
             int y = (int)position.Y;
 
-            if (matrix[x, y] != -1)
+            if (m_matrix[x, y] == -1)
             {
-                matrix[x, y] = (int)gesture;
+                m_matrix[x, y] = (int)gesture;
 
                 if(gesture == Gestures.X)
                 {
@@ -76,7 +77,7 @@ namespace WpfApplication1
         {
             for (int i = 0; i < BOARD_SIZE; i++)
             {
-                if (matrix[i, 0] == (int)gesture && matrix[i, 1] == (int)gesture && matrix[i, 2] == (int)gesture)
+                if (m_matrix[i, 0] == (int)gesture && m_matrix[i, 1] == (int)gesture && m_matrix[i, 2] == (int)gesture)
                 {
                     return gesture;
                 }
@@ -84,18 +85,18 @@ namespace WpfApplication1
 
             for (int i = 0; i < BOARD_SIZE; i++)
             {
-                if (matrix[0, i] == (int)gesture && matrix[1, i] == (int)gesture && matrix[2, i] == (int)gesture)
+                if (m_matrix[0, i] == (int)gesture && m_matrix[1, i] == (int)gesture && m_matrix[2, i] == (int)gesture)
                 {
                     return gesture;
                 }
             }
 
-            if (matrix[0, 0] == (int)gesture && matrix[1, 1] == (int)gesture && matrix[2, 2] == (int)gesture)
+            if (m_matrix[0, 0] == (int)gesture && m_matrix[1, 1] == (int)gesture && m_matrix[2, 2] == (int)gesture)
             {
                 return gesture;
             }
 
-            if (matrix[2, 0] == (int)gesture && matrix[1, 1] == (int)gesture && matrix[0, 2] == (int)gesture)
+            if (m_matrix[2, 0] == (int)gesture && m_matrix[1, 1] == (int)gesture && m_matrix[0, 2] == (int)gesture)
             {
                 return gesture;
             }
@@ -109,7 +110,7 @@ namespace WpfApplication1
             {
                 for (int j = 0; j < BOARD_SIZE; j++)
                 {
-                    if (matrix[i, j] == -1)
+                    if (m_matrix[i, j] == -1)
                     {
                         return false;
                     }
