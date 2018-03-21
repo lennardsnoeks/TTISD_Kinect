@@ -26,6 +26,9 @@ namespace WpfApplication1
 
         private int m_clicked = 0;
 
+        List<Line> m_listX = new List<Line>();
+        List<Ellipse> m_listO = new List<Ellipse>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -110,6 +113,22 @@ namespace WpfApplication1
             }
         }
 
+        public void ResetWindow()
+        {
+            for(int i = 0; i < m_listX.Count; ++i)
+            {
+                game.Children.Remove(m_listX[i]);
+            }
+
+            for(int i = 0; i < m_listO.Count; ++i)
+            {
+                game.Children.Remove(m_listO[i]);
+            }
+
+            m_listO.Clear();
+            m_listX.Clear();
+        }
+
         private void StartButton(object sender, RoutedEventArgs e)
         {
             start.Visibility = Visibility.Hidden;
@@ -155,6 +174,8 @@ namespace WpfApplication1
 
             game.Children.Add(line1);
             game.Children.Add(line2);
+            m_listX.Add(line1);
+            m_listX.Add(line2);
         }
 
         public void drawO(Point position)
@@ -175,6 +196,7 @@ namespace WpfApplication1
             ellipse.Margin = new Thickness(positionX, positionY, 0, 0);
 
             game.Children.Add(ellipse);
+            m_listO.Add(ellipse);
         }
     }
 }

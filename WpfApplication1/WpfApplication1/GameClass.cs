@@ -44,6 +44,8 @@ namespace WpfApplication1
                     matrix[i, j] = -1;
                 }
             }
+
+            m_window.ResetWindow();
         }
 
         private bool Set(Gestures gesture, Point position)
