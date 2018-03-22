@@ -95,6 +95,11 @@ namespace WpfApplication1
 
         private void SensorGameSkeletonFrameReady(object sensor, SkeletonFrameReadyEventArgs e)
         {
+            if(m_game.IsFinished())
+            {
+                return;
+            }
+            
             bool foundSkeleton = false;
 
             using (SkeletonFrame frame = e.OpenSkeletonFrame())
@@ -119,7 +124,10 @@ namespace WpfApplication1
                                 if(gesture != Gestures.NONE)
                                 {
                                     Point gridPosition = determineGridPosition(tResult);
-                                    m_game.placeMove(gesture, gridPosition);
+                                    if(gridPosition.X != -1 && gridPosition.Y != -1)
+                                    {
+                                        m_game.PlaceMove(gesture, gridPosition);
+                                    }
                                 }
                             }
                         }
@@ -127,7 +135,7 @@ namespace WpfApplication1
                         if(!foundSkeleton)
                         {
                             m_window.hideEllipse();
-                        }
+                        } 
                     }
                 }
             }
@@ -146,7 +154,7 @@ namespace WpfApplication1
 
         private int getSingleAxisGridPosition(double position, double boxSize)
         {
-            if (position < boxSize)
+            if (position < boxSize && position > 0)
             {
                 return 0;
             }
@@ -154,9 +162,12 @@ namespace WpfApplication1
             {
                 return 1;
             }
-            else
+            else if (position > boxSize * 2 && position < boxSize * 3)
             {
                 return 2;
+            } else
+            {
+                return -1;
             }
         }
 

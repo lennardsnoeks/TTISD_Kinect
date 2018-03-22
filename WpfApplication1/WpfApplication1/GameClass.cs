@@ -20,6 +20,7 @@ namespace WpfApplication1
         private MainWindow m_window = null;
         private const int BOARD_SIZE = 3;
         private int[,] m_matrix;
+        private bool m_finished = false;
 
         public GameClass(MainWindow window)
         {
@@ -32,6 +33,8 @@ namespace WpfApplication1
                     m_matrix[i, j] = -1;
                 }
             }
+
+            m_window = window;
         }
 
         private void Reset()
@@ -44,7 +47,13 @@ namespace WpfApplication1
                 }
             }
 
+            m_finished = false;
             m_window.ResetWindow();
+        }
+
+        public bool IsFinished()
+        {
+            return m_finished;
         }
 
         private bool Set(Gestures gesture, Point position)
@@ -120,12 +129,13 @@ namespace WpfApplication1
             return true;
         }
 
-        private void PlaceMove(Gestures gesture, Point position)
+        public void PlaceMove(Gestures gesture, Point position)
         {
             if (Set(gesture, position))
             {
                 if (CheckWon(gesture) == Gestures.X)
                 {
+                    m_finished = true;
                     // Show message mainwindow X won
                     DialogResult dresult = MessageBox.Show("X won the game! The board will be reset.", "Alert"
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -136,8 +146,9 @@ namespace WpfApplication1
                 }
                 else if (CheckWon(gesture) == Gestures.O)
                 {
+                    m_finished = true;
                     // Show message mainwindow O won
-                    DialogResult dresult = MessageBox.Show("Y won the game! The board will be reset.", "Alert"
+                    DialogResult dresult = MessageBox.Show("O won the game! The board will be reset.", "Alert"
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     if (dresult == DialogResult.OK)
                     {
@@ -148,6 +159,7 @@ namespace WpfApplication1
                 {
                     if (CheckLock())
                     {
+                        m_finished = true;
                         // Show message mainwindow lock
                         DialogResult dresult = MessageBox.Show("Nobody wins, a lock is reached! The board will be reset.", "Alert"
                               , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
